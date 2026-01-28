@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "ru.shift.andorid_intensive_sample"
+    namespace = "ru.shift.android_intensive_sample"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.shift.andorid_intensive_sample"
+        applicationId = "ru.shift.android_intensive_sample"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -43,9 +43,11 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.text)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
