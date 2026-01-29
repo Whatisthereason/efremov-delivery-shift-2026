@@ -134,7 +134,7 @@ fun HomeScreen(
                     onSelect = onToSelected
                 )
 
-                // В макете “быстрые” города под назначением — другой порядок, можно так:
+                // Быстрый выбор города:
                 QuickLinksRow(
                     options = listOf(
                         Option("nsk", "Новосибирск"),

@@ -10,14 +10,14 @@ data class HomeUiState(
     val calcResultText: String? = null,
     val calcErrorText: String? = null,
 
-    // списки (пока заглушки)
+    // Список городов
     val cityOptions: List<Option> = emptyList(),
     val packageSizeOptions: List<Option> = emptyList(),
 
-    // быстрые города (как на макете)
+    // Быстрый выбор города
     val quickCities: List<Option> = emptyList(),
 
-    // tracking
+    // Отслеживание
     val trackNumber: String = "",
     val trackResultText: String? = null,
     val trackErrorText: String? = null,

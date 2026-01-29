@@ -14,15 +14,15 @@ class HomeViewModel : ViewModel() {
     private val _state = mutableStateOf(
         HomeUiState(
             cityOptions = listOf(moscow, spb, nsk, tomsk),
-            quickCities = listOf(spb, nsk, tomsk), // на макете под Москвой видны три “быстрых”
+            quickCities = listOf(spb, nsk, tomsk),
             packageSizeOptions = listOf(
                 Option("envelope", "Конверт"),
                 Option("small", "Маленькая"),
                 Option("medium", "Средняя"),
                 Option("large", "Большая"),
             ),
-            fromCity = moscow, // как на макете: по умолчанию Москва
-            toCity = spb,      // как на макете: по умолчанию Санкт-Петербург
+            fromCity = nsk,
+            toCity = tomsk,
             packageSize = Option("envelope", "Конверт"),
         )
     )
@@ -59,7 +59,7 @@ class HomeViewModel : ViewModel() {
             return
         }
 
-        // Черновой расчёт: просто чтобы было что показать
+        // Заглушка расчета
         val price = when (s.packageSize.id) {
             "envelope" -> 199
             "small" -> 249
@@ -87,7 +87,7 @@ class HomeViewModel : ViewModel() {
             return
         }
 
-        // Заглушка на лёгком уровне (позже можно заменить на реальный API, если потребуется)
+        // Заглушка отслеживания
         _state.value = s.copy(
             trackErrorText = null,
             trackResultText = "Поиск заказа: ${s.trackNumber} (заглушка)"
