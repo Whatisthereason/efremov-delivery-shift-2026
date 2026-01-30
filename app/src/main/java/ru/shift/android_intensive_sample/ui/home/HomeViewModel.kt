@@ -3,30 +3,41 @@ package ru.shift.android_intensive_sample.ui.home
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import ru.shift.android_intensive_sample.data.network.NetworkModule
+import ru.shift.android_intensive_sample.data.repository.DeliveryRepository
 
 class HomeViewModel : ViewModel() {
 
-    private val moscow = Option("msk", "Москва")
-    private val spb = Option("spb", "Санкт-Петербург")
-    private val nsk = Option("nsk", "Новосибирск")
-    private val tomsk = Option("tmk", "Томск")
+    private val repository =
+        DeliveryRepository(NetworkModule.deliveryApi)
 
-    private val _state = mutableStateOf(
-        HomeUiState(
-            cityOptions = listOf(moscow, spb, nsk, tomsk),
-            quickCities = listOf(spb, nsk, tomsk),
-            packageSizeOptions = listOf(
-                Option("envelope", "Конверт"),
-                Option("small", "Маленькая"),
-                Option("medium", "Средняя"),
-                Option("large", "Большая"),
-            ),
-            fromCity = nsk,
-            toCity = tomsk,
-            packageSize = Option("envelope", "Конверт"),
-        )
-    )
+    private val _state = mutableStateOf(HomeUiState())
     val state: State<HomeUiState> = _state
+
+    init {
+        loadInitialData()
+    }
+
+    private fun loadInitialData() {
+        viewModelScope.launch {
+            runCatching {
+                val points = repository.getPoints()
+                val packages = repository.getPackageTypes()
+
+                _state.value = _state.value.copy(
+                    cityOptions = points.map { Option(it.id, it.name) },
+                    packageSizeOptions = packages.map { Option(it.id, it.name) },
+                    quickCities = points.take(3).map { Option(it.id, it.name) }
+                )
+            }.onFailure { e ->
+                _state.value = _state.value.copy(
+                    calcErrorText = e.message ?: "Ошибка загрузки данных"
+                )
+            }
+        }
+    }
 
     fun onFromCitySelected(option: Option) {
         _state.value = _state.value.copy(fromCity = option, calcErrorText = null)
@@ -59,19 +70,13 @@ class HomeViewModel : ViewModel() {
             return
         }
 
-        // Заглушка расчета
-        val price = when (s.packageSize.id) {
-            "envelope" -> 199
-            "small" -> 249
-            "medium" -> 349
-            else -> 449
-        }
-
+        // Временная заглушка, будет заменена на реальный /calc
         _state.value = s.copy(
             calcErrorText = null,
-            calcResultText = "Стоимость: $price ₽"
+            calcResultText = "Расчёт выполнен (заглушка)"
         )
     }
+
     fun onTrackNumberChange(value: String) {
         _state.value = _state.value.copy(
             trackNumber = value.trim(),
@@ -83,7 +88,10 @@ class HomeViewModel : ViewModel() {
     fun onFindClick() {
         val s = _state.value
         if (s.trackNumber.isBlank()) {
-            _state.value = s.copy(trackErrorText = "Введите номер заказа", trackResultText = null)
+            _state.value = s.copy(
+                trackErrorText = "Введите номер заказа",
+                trackResultText = null
+            )
             return
         }
 
