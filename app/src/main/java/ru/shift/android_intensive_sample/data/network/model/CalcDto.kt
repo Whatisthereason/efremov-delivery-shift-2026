@@ -4,40 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DeliveryPointsResponse(
-    val success: Boolean,
-    val reason: String? = null,
-    val points: List<DeliveryPointDto> = emptyList()
-)
-
-@Serializable
-data class DeliveryPointDto(
-    val id: String,
-    val name: String,
-    val latitude: Double,
-    val longitude: Double
-)
-
-@Serializable
-data class DeliveryPackageTypesResponse(
-    val success: Boolean,
-    val reason: String? = null,
-    @SerialName("packages") val packages: List<DeliveryPackageTypeDto> = emptyList()
-)
-
-@Serializable
-data class DeliveryPackageTypeDto(
-    val id: String,
-    val name: String,
-    val length: Double,
-    val width: Double,
-    val height: Double,
-    val weight: Double
-)
-
-// --- calc ---
-
-@Serializable
 data class CalculateDeliveryDto(
     @SerialName("package") val pkg: CalculateDeliveryPackageDto,
     val senderPoint: CalculateDeliveryPointDto,
