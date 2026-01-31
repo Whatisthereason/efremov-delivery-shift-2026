@@ -7,24 +7,46 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.shift.android_intensive_sample.presentation.home.HomeUiState
-import ru.shift.android_intensive_sample.presentation.home.HomeViewModel
-import ru.shift.android_intensive_sample.presentation.home.Option
+import kotlinx.coroutines.flow.collectLatest
+import ru.shift.android_intensive_sample.App
+import ru.shift.android_intensive_sample.R
+import ru.shift.android_intensive_sample.presentation.home.*
 import ru.shift.android_intensive_sample.ui.navigation.BottomBar
 import ru.shift.android_intensive_sample.ui.navigation.BottomTab
-import ru.shift.android_intensive_sample.R
-import ru.shift.android_intensive_sample.presentation.home.HomeError
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel()
+    onNavigateToOrderStep1: () -> Unit
 ) {
+    // --- DI через AppContainer ---
+    val context = LocalContext.current
+    val app = context.applicationContext as App
+    val container = app.container
+
+    val viewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
+            deliveryRepository = container.deliveryRepository,
+            orderDraftRepository = container.orderDraftRepository
+        )
+    )
+
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableStateOf(BottomTab.CALC) }
+
+    // --- Навигационные события ---
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                HomeViewModel.HomeEvent.NavigateToOrderStep1 ->
+                    onNavigateToOrderStep1()
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -45,11 +67,11 @@ fun HomeScreen(
             when (selectedTab) {
                 BottomTab.CALC -> {
                     Text(
-                        "Мы доставим\nваш заказ",
+                        text = stringResource(R.string.home_title),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Text(
-                        "Отправляйте посылки в приложении\nШифт-Интенсив Delivery",
+                        text = stringResource(R.string.home_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -72,11 +94,11 @@ fun HomeScreen(
                 }
 
                 BottomTab.HISTORY -> {
-                    PlaceholderScreen("История (заглушка)")
+                    PlaceholderScreen(stringResource(R.string.history_stub))
                 }
 
                 BottomTab.PROFILE -> {
-                    PlaceholderScreen("Профиль (заглушка)")
+                    PlaceholderScreen(stringResource(R.string.profile_stub))
                 }
             }
         }
@@ -99,17 +121,20 @@ private fun CalculateDeliveryCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Рассчитать доставку", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.calc_title),
+                style = MaterialTheme.typography.titleLarge
+            )
 
             Text(
-                "Город отправки",
+                text = stringResource(R.string.from_city),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             SimpleDropdown(
-                selected = state.fromCity?.title ?: "",
-                placeholder = "Выберите город",
+                selected = state.fromCity?.title.orEmpty(),
+                placeholder = stringResource(R.string.select_city),
                 options = state.cityOptions,
                 onSelect = onFromSelected
             )
@@ -120,14 +145,14 @@ private fun CalculateDeliveryCard(
             )
 
             Text(
-                "Город назначения",
+                text = stringResource(R.string.to_city),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             SimpleDropdown(
-                selected = state.toCity?.title ?: "",
-                placeholder = "Выберите город",
+                selected = state.toCity?.title.orEmpty(),
+                placeholder = stringResource(R.string.select_city),
                 options = state.cityOptions,
                 onSelect = onToSelected
             )
@@ -138,14 +163,14 @@ private fun CalculateDeliveryCard(
             )
 
             Text(
-                "Размер посылки",
+                text = stringResource(R.string.package_size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             SimpleDropdown(
-                selected = state.packageSize?.title ?: "",
-                placeholder = "Выберите размер",
+                selected = state.packageSize?.title.orEmpty(),
+                placeholder = stringResource(R.string.select_package),
                 options = state.packageSizeOptions,
                 onSelect = onPackageSelected
             )
@@ -160,18 +185,19 @@ private fun CalculateDeliveryCard(
             ) {
                 Text(
                     text = stringResource(
-                        if (state.isLoading) R.string.calc_loading else R.string.calc_button
+                        if (state.isLoading)
+                            R.string.calc_loading
+                        else
+                            R.string.calc_button
                     )
-                )            }
-
-            state.error?.let { err ->
-                Text(
-                    text = errorText(err),
-                    color = MaterialTheme.colorScheme.error
                 )
             }
-            state.calcResultText?.let {
-                Text(it, style = MaterialTheme.typography.titleMedium)
+
+            state.error?.let {
+                Text(
+                    text = errorText(it),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
@@ -193,12 +219,15 @@ private fun TrackDeliveryCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Отследить посылку", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.track_title),
+                style = MaterialTheme.typography.titleLarge
+            )
 
             OutlinedTextField(
                 value = trackNumber,
                 onValueChange = onTrackNumberChange,
-                label = { Text("Номер заказа") },
+                label = { Text(stringResource(R.string.track_number)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -210,16 +239,19 @@ private fun TrackDeliveryCard(
                     .height(52.dp),
                 shape = MaterialTheme.shapes.large
             ) {
-                Text("Найти")
+                Text(stringResource(R.string.find))
             }
 
-            error?.let { err ->
+            error?.let {
                 Text(
-                    text = errorText(err),
+                    text = errorText(it),
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            resultText?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+
+            resultText?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
@@ -231,9 +263,7 @@ private fun QuickLinksRow(
 ) {
     if (options.isEmpty()) return
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         options.forEach { opt ->
             Text(
                 text = opt.title,
@@ -317,7 +347,17 @@ private fun errorText(error: HomeError): String {
         HomeError.EnterTrackNumber ->
             stringResource(R.string.error_enter_track_number)
 
-        is HomeError.Network ->
-            error.message ?: stringResource(R.string.error_network)
+        is HomeError.Network -> {
+            when (error.message) {
+                "POINTS_LOAD_FAILED" -> stringResource(R.string.error_points_load_failed)
+                "PACKAGES_LOAD_FAILED" -> stringResource(R.string.error_packages_load_failed)
+                "SENDER_POINT_NOT_FOUND" -> stringResource(R.string.error_sender_point_not_found)
+                "RECEIVER_POINT_NOT_FOUND" -> stringResource(R.string.error_receiver_point_not_found)
+                "PACKAGE_TYPE_NOT_FOUND" -> stringResource(R.string.error_package_type_not_found)
+                "CALCULATION_FAILED" -> stringResource(R.string.error_calculation_failed)
+                else -> stringResource(R.string.error_network)
+            }
+        }
     }
 }
+

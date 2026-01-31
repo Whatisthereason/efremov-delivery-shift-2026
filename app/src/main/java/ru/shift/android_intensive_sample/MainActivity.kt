@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import ru.shift.android_intensive_sample.ui.theme.AndoridintensivesampleTheme
 import ru.shift.android_intensive_sample.ui.home.HomeScreen
+import androidx.navigation.compose.rememberNavController
+import ru.shift.android_intensive_sample.ui.navigation.AppNavGraph
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +15,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AndoridintensivesampleTheme {
-                HomeScreen()
+                val navController = rememberNavController()
+                AppNavGraph(navController = navController)
             }
         }
     }

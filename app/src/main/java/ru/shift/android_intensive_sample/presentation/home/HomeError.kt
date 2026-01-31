@@ -9,3 +9,5 @@ sealed interface HomeError {
 
     data class Network(val message: String? = null) : HomeError
 }
+
+

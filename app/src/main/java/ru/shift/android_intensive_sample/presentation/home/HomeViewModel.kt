@@ -13,14 +13,30 @@ import ru.shift.android_intensive_sample.data.network.NetworkModule
 import ru.shift.android_intensive_sample.data.repository.DeliveryRepositoryImpl
 import ru.shift.android_intensive_sample.domain.model.CalculateDeliveryRequest
 import ru.shift.android_intensive_sample.domain.repository.DeliveryRepository
+import ru.shift.android_intensive_sample.domain.repository.OrderDraftRepository
 
-class HomeViewModel : ViewModel() {
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import ru.shift.android_intensive_sample.presentation.order.DeliveryOptionUi
+
+class HomeViewModel(
+    private val deliveryRepository: DeliveryRepository,
+    private val orderDraftRepository: OrderDraftRepository
+) : ViewModel() {
 
     private val repository: DeliveryRepository =
         DeliveryRepositoryImpl(NetworkModule.deliveryApi)
 
     private val _state = MutableStateFlow(HomeUiState())
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<HomeEvent>()
+    val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
+
+    sealed interface HomeEvent {
+        data object NavigateToOrderStep1 : HomeEvent
+    }
 
     init {
         loadInitialData()
@@ -101,12 +117,21 @@ class HomeViewModel : ViewModel() {
                     )
                 )
             }.onSuccess { options ->
-                val resultText = options.joinToString("\n") {
-                    "${it.type}: ${it.price} ₽, ${it.days} дн."
+                orderDraftRepository.setDeliveryOptions(options)
+                _state.update {
+                    it.copy(
+                        isLoading = false
+                    )
                 }
-                _state.update { it.copy(isLoading = false, calcResultText = resultText) }
-            }.onFailure { e ->
-                _state.update { it.copy(isLoading = false, error = HomeError.Network(e.message)) }
+                _events.emit(HomeEvent.NavigateToOrderStep1)
+            }
+                .onFailure { e ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            error = HomeError.Network(e.message)
+                        )
+                    }
             }
         }
     }

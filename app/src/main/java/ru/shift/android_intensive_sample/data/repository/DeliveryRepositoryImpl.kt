@@ -47,19 +47,18 @@ class DeliveryRepositoryImpl(
     }
 
     override suspend fun calculateDelivery(request: CalculateDeliveryRequest): List<DeliveryOption> {
-        // Важно: чтобы собрать CalculateDeliveryDto, нужны координаты и размеры.
-        // Поэтому берём справочники и находим нужные элементы по id.
+
         val points = getPoints()
         val packages = getPackageTypes()
 
         val sender = points.firstOrNull { it.id == request.senderPointId }
-            ?: throw IllegalStateException("Не найден пункт отправки")
+            ?: throw IllegalStateException("SENDER_POINT_NOT_FOUND")
 
         val receiver = points.firstOrNull { it.id == request.receiverPointId }
-            ?: throw IllegalStateException("Не найден пункт назначения")
+            ?: throw IllegalStateException("RECEIVER_POINT_NOT_FOUND")
 
         val pkgType = packages.firstOrNull { it.id == request.packageTypeId }
-            ?: throw IllegalStateException("Не найден тип посылки")
+            ?: throw IllegalStateException("PACKAGE_TYPE_NOT_FOUND")
 
         val body = CalculateDeliveryDto(
             pkg = CalculateDeliveryPackageDto(
@@ -80,13 +79,14 @@ class DeliveryRepositoryImpl(
 
         val response = api.calculateDelivery(body)
         if (!response.success) {
-            throw IllegalStateException(response.reason ?: "Не удалось рассчитать доставку")
+            throw IllegalStateException(response.reason ?: "CALCULATION_FAILED")
         }
 
         return response.options.map { dto ->
             DeliveryOption(
                 type = dto.type,
-                price = dto.price,
+                //С сервера же приходят копейки? Иначе сильно дорого (в описании API не нашел)
+                price = dto.price / 100,
                 days = dto.days
             )
         }

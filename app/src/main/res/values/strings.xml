@@ -1,11 +1,47 @@
 <resources>
     <string name="app_name">android-intensive-sample</string>
+
+    <string name="home_title">Мы доставим\nваш заказ</string>
+    <string name="home_subtitle">Отправляйте посылки в приложении\nШИФТ Интенсив Delivery</string>
+
+    <string name="calc_title">Рассчитать доставку</string>
+    <string name="from_city">Город отправки</string>
+    <string name="to_city">Город назначения</string>
+    <string name="select_city">Выберите город</string>
+
+    <string name="package_size">Размер посылки</string>
+    <string name="select_package">Выберите размер</string>
+
+    <string name="track_title">Отследить посылку</string>
+    <string name="track_number">Номер заказа</string>
+    <string name="find">Найти</string>
+
+    <string name="history_stub">История (заглушка)</string>
+    <string name="profile_stub">Профиль (заглушка)</string>
+
     <string name="error_select_from_city">Выберите город отправки</string>
     <string name="error_select_to_city">Выберите город назначения</string>
     <string name="error_select_package">Выберите размер посылки</string>
     <string name="error_enter_track_number">Введите номер заказа</string>
     <string name="error_network">Ошибка сети</string>
+    <string name="error_points_load_failed">Не удалось получить список городов</string>
+    <string name="error_packages_load_failed">Не удалось получить список типов посылок</string>
+    <string name="error_sender_point_not_found">Не найден пункт отправки</string>
+    <string name="error_receiver_point_not_found">Не найден пункт назначения</string>
+    <string name="error_package_type_not_found">Не найден тип посылки</string>
+    <string name="error_calculation_failed">Не удалось рассчитать доставку</string>
 
     <string name="calc_button">Рассчитать</string>
     <string name="calc_loading">Считаем...</string>
+
+    <string name="back">Назад</string>
+
+    <string name="order_step1_title">Способ отправки</string>
+    <string name="order_step1_subtitle">Выберите способ отправки</string>
+    <string name="delivery_type_default">Обычная доставка</string>
+    <string name="delivery_type_express">Экспресс-доставка</string>
+    <string name="delivery_type_unknown"> Особая доставка </string>
+    <string name="order_step1_no_data">Нет данных расчёта. Вернитесь назад и нажмите «Рассчитать».</string>
+    <string name="order_step1_days">%1$d рабочих дней</string>
+
 </resources>

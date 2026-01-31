@@ -1,4 +1,5 @@
 package ru.shift.android_intensive_sample.presentation.home
+import ru.shift.android_intensive_sample.presentation.order.DeliveryOptionUi
 
 data class HomeUiState(
 
@@ -7,6 +8,9 @@ data class HomeUiState(
     val packageSize: Option? = null,
 
     val calcResultText: String? = null,
+
+    val deliveryOptions: List<DeliveryOptionUi> = emptyList(),
+    val selectedDeliveryOption: DeliveryOptionUi? = null,
 
     val error: HomeError? = null,
 
