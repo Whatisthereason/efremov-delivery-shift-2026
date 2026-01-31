@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">android-intensive-sample</string>
+    <string name="error_select_from_city">Выберите город отправки</string>
+    <string name="error_select_to_city">Выберите город назначения</string>
+    <string name="error_select_package">Выберите размер посылки</string>
+    <string name="error_enter_track_number">Введите номер заказа</string>
+    <string name="error_network">Ошибка сети</string>
+
+    <string name="calc_button">Рассчитать</string>
+    <string name="calc_loading">Считаем...</string>
 </resources>
